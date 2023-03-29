@@ -30,7 +30,9 @@ class Player extends SpriteComponent with HasGameRef<MyGame> {
 
     super.update(dt);
     position.add(gameRef.joystick.delta * dt * 5);
-    var angleDeg = atan2(gameRef.joystick.delta.y, gameRef.joystick.delta.x);
-    angle = angleDeg - pi / 2 + splitAngle;
+    if (gameRef.joystick.delta != Vector2.zero()) {
+      var angleDeg = atan2(gameRef.joystick.delta.y, gameRef.joystick.delta.x);
+      angle = angleDeg - pi / 2 + splitAngle;
+    }
   }
 }
