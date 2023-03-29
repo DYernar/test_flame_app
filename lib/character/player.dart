@@ -1,11 +1,13 @@
+import 'dart:math';
+
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flame/experimental.dart';
 import 'package:test_app/character/character.dart';
 import 'package:test_app/flame_layer/my_game.dart';
 
-class Ninja extends SpriteComponent with HasGameRef<MyGame> {
-  Ninja() {
+class Player extends SpriteComponent with HasGameRef<MyGame> {
+  static const double splitAngle = pi / 4;
+  Player() {
     debugMode = true;
   }
 
@@ -13,12 +15,13 @@ class Ninja extends SpriteComponent with HasGameRef<MyGame> {
   Future<void>? onLoad() async {
     await super.onLoad();
     add(RectangleHitbox());
-    Character character = Character(x: 200, y: 300, width: 16, height: 16);
+    Character character = Character(x: 200, y: 300, width: 32, height: 32);
     final spriteSize = Vector2(32.0, 32.0);
     size = spriteSize;
     position = Vector2(character.x, character.y);
-    sprite = await gameRef.loadSprite('character_idle.png',
-        srcSize: Vector2(16, 16));
+    angle = 0;
+    anchor = Anchor.center;
+    sprite = await gameRef.loadSprite('player.png', srcSize: Vector2(512, 512));
   }
 
   @override
@@ -26,6 +29,8 @@ class Ninja extends SpriteComponent with HasGameRef<MyGame> {
     if (sprite == null) return;
 
     super.update(dt);
-    position.add(gameRef.joystick.delta * dt * 100);
+    position.add(gameRef.joystick.delta * dt * 5);
+    var angleDeg = atan2(gameRef.joystick.delta.y, gameRef.joystick.delta.x);
+    angle = angleDeg - pi / 2 + splitAngle;
   }
 }

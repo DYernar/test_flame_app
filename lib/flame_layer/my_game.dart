@@ -2,7 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
-import 'package:test_app/character/ninja_ch.dart';
+import 'package:test_app/character/player.dart';
 import 'package:test_app/map_generator/box.dart';
 import 'package:test_app/map_generator/map_generator.dart';
 import 'package:test_app/map_generator/simple_map/simple_map.dart';
@@ -10,7 +10,7 @@ import 'package:test_app/map_generator/simple_map/simple_map.dart';
 class MyGame extends FlameGame with HasCollisionDetection, HasDraggables {
   SpriteComponent background = SpriteComponent();
   late JoystickComponent joystick;
-  late Ninja ninja;
+  late Player player;
 
   @override
   Future<void> onLoad() async {
@@ -45,20 +45,22 @@ class MyGame extends FlameGame with HasCollisionDetection, HasDraggables {
     // create joystick
     final knobPaint = BasicPalette.white.paint();
     final backgroundPaint = BasicPalette.lightGray.paint();
-    JoystickComponent joystick = JoystickComponent(
+    joystick = JoystickComponent(
       knob: CircleComponent(radius: 20, paint: knobPaint),
       background: CircleComponent(radius: 50, paint: backgroundPaint),
       margin: const EdgeInsets.only(left: 40, bottom: 40),
     );
     add(joystick);
 
-    ninja = Ninja();
-    add(ninja);
+    player = Player();
+    // camera follow ninja
+    camera.followComponent(player, relativeOffset: const Anchor(0.5, 0.5));
+    add(player);
   }
 
-  @override
-  void update(double dt) {
-    super.update(dt);
-    camera.followComponent(ninja, relativeOffset: const Anchor(0.5, 0.5));
-  }
+  // @override
+  // void update(double dt) {
+  //   super.update(dt);
+  //   camera.followComponent(ninja, relativeOffset: const Anchor(0.5, 0.5));
+  // }
 }
