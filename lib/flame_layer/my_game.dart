@@ -5,9 +5,10 @@ import 'package:flame/input.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:test_app/character/player.dart';
-import 'package:test_app/map_generator/box.dart';
+import 'package:test_app/map_generator/box_model.dart';
 import 'package:test_app/map_generator/map_generator.dart';
 import 'package:test_app/map_generator/simple_map/simple_map.dart';
+import 'package:test_app/sprites/balloon/balloon.dart';
 import 'package:test_app/sprites/box_component/box_component.dart';
 import 'package:test_app/sprites/bullet/bullet.dart';
 import 'package:test_app/sprites/enemy_component/enemy_component.dart';
@@ -16,7 +17,6 @@ class MyGame extends FlameGame
     with HasCollisionDetection, HasDraggables, TapDetector {
   SpriteComponent background = SpriteComponent();
   late JoystickComponent joystick;
-  late Player player;
   final int cellAmount = 20;
   late double gameScreenHeight;
   late double gameScreenWidth;
@@ -51,20 +51,22 @@ class MyGame extends FlameGame
     await addBoxes();
     // create joystick
     addJoystick();
-    addPlayer();
+    // addPlayer();
     _spawnEnemies();
-  }
 
-  void addPlayer() {
-    player = Player()
-      ..add(ColorEffect(
-        Colors.blue,
-        const Offset(0.0, 0.6),
-        EffectController(duration: 0.0),
-      ));
-    // camera follow ninja
-    camera.followComponent(player, relativeOffset: const Anchor(0.5, 0.5));
-    add(player);
+    Balloon balloon = Balloon(
+      balloonColor: BalloonColors.blue,
+      position: Vector2(200, 300),
+      isPlayer: true,
+    );
+    camera.followComponent(balloon, relativeOffset: const Anchor(0.5, 0.5));
+    add(balloon);
+
+    Balloon balloonRed = Balloon(
+      balloonColor: BalloonColors.red,
+      position: Vector2(200, 300),
+    );
+    add(balloonRed);
   }
 
   void addJoystick() {
@@ -80,8 +82,8 @@ class MyGame extends FlameGame
 
   Future<void> addBoxes() async {
     MapGenerator map = SimpleMap(screenSize: gameScreenHeight, cellAmount: 20);
-    List<Box> boxes = map.generateMap();
-    for (Box box in boxes) {
+    List<BoxModel> boxes = map.generateMap();
+    for (BoxModel box in boxes) {
       BoxComponent boxSprite = BoxComponent(
         sprite: await loadSprite('box.png'),
         position: Vector2(box.x, box.y),
@@ -91,16 +93,16 @@ class MyGame extends FlameGame
     }
   }
 
-  @override
-  void onTapDown(TapDownInfo info) async {
-    super.onTapDown(info);
-    Bullet bullet = Bullet(
-      sprite: await loadSprite('player.png'),
-      center: player.center,
-      angle: player.angle + Player.splitAngle,
-    );
-    add(bullet);
-  }
+  // @override
+  // void onTapDown(TapDownInfo info) async {
+  //   super.onTapDown(info);
+  //   Bullet bullet = Bullet(
+  //     sprite: await loadSprite('player.png'),
+  //     center: player.center,
+  //     angle: player.angle + Player.splitAngle,
+  //   );
+  //   add(bullet);
+  // }
 
   @override
   void update(double dt) {

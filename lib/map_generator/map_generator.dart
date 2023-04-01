@@ -1,5 +1,5 @@
-import 'package:test_app/map_generator/box.dart';
+import 'package:test_app/map_generator/box_model.dart';
 
 abstract class MapGenerator {
-  List<Box> generateMap();
+  List<BoxModel> generateMap();
 }

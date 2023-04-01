@@ -23,17 +23,17 @@ class EnemyComponent extends SpriteComponent with HasGameRef<MyGame> {
     size = spriteSize;
     angle = 0;
     anchor = Anchor.center;
-    sprite = await gameRef.loadSprite('player.png', srcSize: Vector2(512, 512));
+    sprite = await gameRef.loadSprite('red.png', srcSize: Vector2(512, 512));
   }
 
-  @override
-  void update(double dt) {
-    super.update(dt);
-    var playerPosition = gameRef.player.position;
-    position =
-        position + (playerPosition - position).normalized() * _enemySpeed * dt;
-    // print('enemy position: $position');
-  }
+  // @override
+  // void update(double dt) {
+  //   super.update(dt);
+  //   var playerPosition = gameRef.player.position;
+  //   position =
+  //       position + (playerPosition - position).normalized() * _enemySpeed * dt;
+  //   // print('enemy position: $position');
+  // }
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {

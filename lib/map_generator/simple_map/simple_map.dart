@@ -1,4 +1,4 @@
-import 'package:test_app/map_generator/box.dart';
+import 'package:test_app/map_generator/box_model.dart';
 
 import '../map_generator.dart';
 
@@ -13,13 +13,13 @@ class SimpleMap extends MapGenerator {
   }
 
   @override
-  List<Box> generateMap() {
+  List<BoxModel> generateMap() {
     double cellSize = screenSize / cellAmount;
-    List<Box> boxes = [];
+    List<BoxModel> boxes = [];
     for (int r = 0; r < map.length; r++) {
       for (int c = 0; c < map[r].length; c++) {
         if (map[r][c] == 1) {
-          Box box = Box(
+          BoxModel box = BoxModel(
             x: c * cellSize,
             y: r * cellSize,
             width: cellSize,
