@@ -11,7 +11,6 @@ import 'package:test_app/map_generator/simple_map/simple_map.dart';
 import 'package:test_app/sprites/balloon/balloon.dart';
 import 'package:test_app/sprites/balloon/balloon_next_spawn.dart';
 import 'package:test_app/sprites/box_component/box_component.dart';
-import 'package:test_app/sprites/bubble/bubble.dart';
 
 class BalloonWars extends FlameGame with HasDraggables, TapDetector {
   SpriteComponent background = SpriteComponent();
@@ -36,14 +35,26 @@ class BalloonWars extends FlameGame with HasDraggables, TapDetector {
       gameScreenHeight: gameScreenHeight,
       balloonsCount: balloonsCount,
       padding: cellSize,
-      balloonSize: Balloon.maxSize,
+      balloonSize: Balloon.balloonNormalSize,
     );
     // load background
     await _addBackground();
     await _addBoxes();
     _addJoystick();
     _addBalloons();
-    _addPlayer();
+    respawnPlayer();
+  }
+
+  @override
+  void onTap() {
+    super.onTap();
+    player.shoot();
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    _addBalloons();
   }
 
   Future<void> _addBackground() async {
@@ -79,7 +90,8 @@ class BalloonWars extends FlameGame with HasDraggables, TapDetector {
   }
 
   void _addBalloons() async {
-    int currentBalloonAmount = children.whereType<Balloon>().toList().length;
+    int currentBalloonAmount =
+        children.whereType<Balloon>().toList().length - 1;
     for (int i = currentBalloonAmount; i < balloonsCount; i++) {
       final Vector2 spawnPosition = balloonNextSpawner.getNextSpawnPosition();
       final BalloonColors spawnColor = balloonNextSpawner.getNextSpawnColor();
@@ -92,31 +104,19 @@ class BalloonWars extends FlameGame with HasDraggables, TapDetector {
     }
   }
 
-  void _addPlayer() {
-    final Vector2 spawnPosition = balloonNextSpawner.getNextSpawnPosition();
-    player = Balloon(
-      balloonColor: BalloonColors.red,
-      position: spawnPosition,
-      isPlayer: true,
-    );
-    camera.followComponent(player, relativeOffset: const Anchor(0.5, 0.5));
-    add(player);
-  }
-
-  bool isPlayerAlive() {
-    return children
-        .whereType<Balloon>()
-        .toList()
-        .any((element) => element.isPlayer);
-  }
-
-  @override
-  void onTap() {
-    super.onTap();
-    Bubble bubbleBullet = Bubble(
-      center: player.center,
-      angle: player.angle + pi / 2,
-    );
-    add(bubbleBullet);
+  void respawnPlayer({isInitialized = false}) {
+    // check if player is initialized
+    if (!isInitialized) {
+      final Vector2 spawnPosition = balloonNextSpawner.getNextSpawnPosition();
+      player = Balloon(
+        balloonColor: BalloonColors.red,
+        position: spawnPosition,
+        isPlayer: true,
+      );
+      camera.followComponent(player, relativeOffset: const Anchor(0.5, 0.5));
+      add(player);
+    } else {
+      player.respawn(newPosition: balloonNextSpawner.getNextSpawnPosition());
+    }
   }
 }
