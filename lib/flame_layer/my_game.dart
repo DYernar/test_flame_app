@@ -20,7 +20,7 @@ class MyGame extends FlameGame
   final int cellAmount = 20;
   late double gameScreenHeight;
   late double gameScreenWidth;
-  int enemyCount = 1;
+  // int enemyCount = 1;
   List<Vector2> enemyPositions = [];
   int lastSpawnPosition = 0;
 
@@ -52,21 +52,7 @@ class MyGame extends FlameGame
     // create joystick
     addJoystick();
     // addPlayer();
-    _spawnEnemies();
-
-    Balloon balloon = Balloon(
-      balloonColor: BalloonColors.blue,
-      position: Vector2(200, 300),
-      isPlayer: true,
-    );
-    camera.followComponent(balloon, relativeOffset: const Anchor(0.5, 0.5));
-    add(balloon);
-
-    Balloon balloonRed = Balloon(
-      balloonColor: BalloonColors.red,
-      position: Vector2(200, 300),
-    );
-    add(balloonRed);
+    // _spawnEnemies();
   }
 
   void addJoystick() {
@@ -109,7 +95,7 @@ class MyGame extends FlameGame
     super.update(dt);
     _checkBoxBulletCollision();
     _checkBulletEnemyCollision();
-    _spawnEnemies();
+    // _spawnEnemies();
   }
 
   void _checkBoxBulletCollision() {
@@ -138,22 +124,22 @@ class MyGame extends FlameGame
     }
   }
 
-  void _spawnEnemies() {
-    List<EnemyComponent> enemies =
-        children.whereType<EnemyComponent>().toList();
-    if (enemies.length < enemyCount) {
-      EnemyComponent enemy = EnemyComponent(
-        position: enemyPositions[lastSpawnPosition],
-      )..add(ColorEffect(
-          Colors.red,
-          const Offset(0.0, 0.6),
-          EffectController(duration: 0.0),
-        ));
-      lastSpawnPosition++;
-      if (lastSpawnPosition >= enemyPositions.length) {
-        lastSpawnPosition = 0;
-      }
-      add(enemy);
-    }
-  }
+  // void _spawnEnemies() {
+  //   List<EnemyComponent> enemies =
+  //       children.whereType<EnemyComponent>().toList();
+  //   if (enemies.length < enemyCount) {
+  //     EnemyComponent enemy = EnemyComponent(
+  //       position: enemyPositions[lastSpawnPosition],
+  //     )..add(ColorEffect(
+  //         Colors.red,
+  //         const Offset(0.0, 0.6),
+  //         EffectController(duration: 0.0),
+  //       ));
+  //     lastSpawnPosition++;
+  //     if (lastSpawnPosition >= enemyPositions.length) {
+  //       lastSpawnPosition = 0;
+  //     }
+  //     add(enemy);
+  //   }
+  // }
 }

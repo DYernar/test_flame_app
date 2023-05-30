@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:test_app/flame_layer/balloon_wars.dart';
 import 'package:test_app/sprites/bubble/bubble.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 enum BalloonColors { blue, green, pink, purple, red, yellow }
 
@@ -18,19 +21,20 @@ class Balloon extends SpriteComponent with HasGameRef<BalloonWars> {
   static const String enemyId = 'enemy';
   static const String playerId = 'player';
   final BalloonColors balloonColor;
+  final WebSocketChannel channel;
   final bool isPlayer;
-  late String id;
+  final String username;
   double dtCumulative = 0;
 
-  Balloon({
-    required this.balloonColor,
-    this.isPlayer = false,
-    required Vector2 position,
-  }) {
+  Balloon(
+      {required this.balloonColor,
+      this.isPlayer = false,
+      required Vector2 position,
+      required this.channel,
+      required this.username}) {
     debugMode = true;
     this.position = position;
     // generate random id
-    id = isPlayer ? playerId : enemyId + Random().nextInt(1000).toString();
   }
 
   @override
@@ -51,10 +55,7 @@ class Balloon extends SpriteComponent with HasGameRef<BalloonWars> {
     super.update(dt);
     if (isPlayer) {
       _checkJoystickMovement(dt);
-    } else {
-      _findAndAttackPlayer(dt);
     }
-    _checkBubbleCollision();
   }
 
   void respawn({required Vector2 newPosition}) {
@@ -86,7 +87,7 @@ class Balloon extends SpriteComponent with HasGameRef<BalloonWars> {
       center: center,
       angle: angle + pi / 2,
       shooterSize: getMaxWidth(),
-      shooterId: id,
+      shooterId: username,
     );
     removeAir(Bubble.airAmount);
     gameRef.add(bubbleBullet);
@@ -118,22 +119,36 @@ class Balloon extends SpriteComponent with HasGameRef<BalloonWars> {
 
   void _checkJoystickMovement(double dt) {
     if (!isPlayer) return;
-    position.add(gameRef.joystick.delta * dt * balloonSpeed);
+    var newPosition = position + gameRef.joystick.delta * dt * balloonSpeed;
+    var newAngle = angle;
     if (gameRef.joystick.delta != Vector2.zero()) {
       var angleDeg = atan2(gameRef.joystick.delta.y, gameRef.joystick.delta.x);
-      angle = angleDeg - pi / 2 + splitAngle;
+      newAngle = angleDeg - pi / 2 + splitAngle;
     }
+    if (newPosition == position && newAngle == angle) return;
+    var data = {
+      "event": newPositionEvent,
+      "username": username,
+      "data": {
+        "position": {
+          "x": newPosition.x,
+          "y": newPosition.y,
+        },
+        "angle": newAngle,
+      }
+    };
+    EasyDebounce.debounce(
+      'move',
+      const Duration(milliseconds: 10),
+      () => {
+        channel.sink.add(jsonEncode(data)),
+      },
+    );
   }
 
-  void _checkBubbleCollision() {
-    List<Bubble> bubbles = gameRef.children.whereType<Bubble>().toList();
-    for (Bubble bubble in bubbles) {
-      if (bubble.shooterId == id) continue;
-      if (bubble.toRect().overlaps(toRect())) {
-        addAir(Bubble.airAmount);
-        gameRef.remove(bubble);
-      }
-    }
+  void moveTo(Vector2 newPosition, double newAngle) {
+    position = newPosition;
+    angle = newAngle;
   }
 
   double getMaxWidth() {

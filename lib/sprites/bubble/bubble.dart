@@ -51,7 +51,7 @@ class Bubble extends SpriteComponent with HasGameRef<BalloonWars> {
         position.y < 0 ||
         position.x < 0) {
       Balloon shooter = gameRef.children.whereType<Balloon>().firstWhere(
-          (element) => element.id == shooterId,
+          (element) => element.username == shooterId,
           orElse: () => throw Exception('Shooter not found'));
       shooter.addAir(airAmount);
       removeFromParent();
